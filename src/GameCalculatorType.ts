@@ -23,9 +23,26 @@ export type Items = {
     Url: string
 }
 
+export type KeyStoneType = {
+    Keystone: string,
+    Url: string
+}
+
+export type SummonersType = {
+    Summoners: string,
+    Url: string
+}
+
 export enum GameCalculatorActionKind {
     UPDATE_STATE1 = 'UPDATE_STATE1',
     UPDATE_STATE2 = 'UPDATE_STATE2',
+    ARMOUR = "ARMOUR",
+    RATING = "RATING",
+    GAMETIME = "GAMETIME",
+    KEYSTONE1 = "KEYSTONE1",
+    SUMMONER1 = "SUMMONER1",
+    KEYSTONE2 = "KEYSTONE2",
+    SUMMONER2 = "SUMMONER2",
 }
 
 export interface GameCalculatorAction {

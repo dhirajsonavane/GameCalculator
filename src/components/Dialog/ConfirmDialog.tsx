@@ -13,6 +13,8 @@ import { Items } from '../../GameCalculatorType';
 import ImageList from '@material-ui/core/ImageList';
 import ImageListItem from '@material-ui/core/ImageListItem';
 import clsx from 'clsx';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 
 export type ConfirmDialogType = {
     Key: string,
@@ -75,26 +77,27 @@ const ConfirmDialog: FC<IProps> = (props: IProps) => {
                         <div>Loading</div>
                     )
                         : (
-                            <ImageList rowHeight={160} className={classes.imageList} cols={3}>
+                            <Grid container>
                                 {
                                     items.map(item => (
-                                        <ImageListItem
-                                            key={item.Item}
-                                            cols={1}
-                                            className={clsx(classes.image, {
-                                                [classes.selectedImage]: selectedItems.filter(x => x.Item === item.Item)?.length > 0
-                                            })}
-                                        >
-                                            <img
-                                                src={item.Url}
-                                                alt={item.Item}
-                                                onClick={() => handleImageClick(item)}
-
-                                            />
-                                        </ImageListItem>
+                                        <Grid key={item.Item} item xs={2} className={clsx(classes.imageContainer, {
+                                            [classes.selectedImage]: selectedItems.filter(x => x.Item === item.Item)?.length > 0
+                                        })}>
+                                            <Paper
+                                                key={item.Item}
+                                                className={classes.image}
+                                            >
+                                                <img
+                                                    src={item.Url}
+                                                    alt={item.Item}
+                                                    onClick={() => handleImageClick(item)}
+                                                    className={classes.image}
+                                                />
+                                            </Paper>
+                                        </Grid>
                                     ))
                                 }
-                            </ImageList>
+                            </Grid>
                         )
                 }
             </DialogContent>
@@ -156,15 +159,19 @@ const useStyles = makeStyles(theme => ({
         overflow: 'hidden',
         backgroundColor: theme.palette.background.paper,
     },
+    imageContainer: {
+        margin: 1,
+    },
     imageList: {
         width: '100%',
         height: '100%',
     },
     image: {
-        
+        width: '100%',
+        height: '100%',
     },
     selectedImage: {
-        border: '5px solid #fa8000'
+        border: '5px solid #63be00',
     },
     '.MuiImageListItem-item': {
         height: 'unset',
