@@ -12,25 +12,28 @@ import axios from 'axios';
 import { Items } from '../../GameCalculatorType';
 import ImageList from '@material-ui/core/ImageList';
 import ImageListItem from '@material-ui/core/ImageListItem';
+import clsx from 'clsx';
 
 export type ConfirmDialogType = {
     Key: string,
-    ReturnValue: string,
+    ReturnValue: Items[],
     IsOpen: boolean,
 }
 
 interface IProps {
     confirmDialogValues: ConfirmDialogType,
     setConfirmDialogValues: any,
-    handleConfirmDialog: (key: string, returnValue: string) => void
+    handleConfirmDialog: (key: string, returnValue: Items[]) => void
 }
 
 const ConfirmDialog: FC<IProps> = (props: IProps) => {
     const classes = useStyles();
     const [items, setItems] = useState<Items[]>([]);
     const [loading, setLoading] = useState<boolean>(() => false);
+    const [selectedItems, setSelectedItems] = useState<Items[]>([]);
 
     useEffect(() => {
+        setSelectedItems([]);
         const fillUserSession = async () => {
             try {
                 setLoading(true);
@@ -49,6 +52,21 @@ const ConfirmDialog: FC<IProps> = (props: IProps) => {
         fillUserSession();
     }, []);
 
+    const handleImageClick = (key: Items) => {
+        let tempItems = [...selectedItems];
+
+        let obj = tempItems.filter(x => x.Item === key.Item);
+
+        if (obj.length) {
+            setSelectedItems(tempItems.filter(x => x.Item !== key.Item));
+            return;
+        }
+
+        if (selectedItems.length > 5) return;
+        tempItems.push(key);
+        setSelectedItems(tempItems);
+    }
+
     return (
         <Dialog open={props.confirmDialogValues.IsOpen} classes={{ paper: classes.dialog }} data-testid="confirm-dialog" fullWidth>
             <DialogContent className={classes.dialogContent}>
@@ -60,8 +78,19 @@ const ConfirmDialog: FC<IProps> = (props: IProps) => {
                             <ImageList rowHeight={160} className={classes.imageList} cols={3}>
                                 {
                                     items.map(item => (
-                                        <ImageListItem key={item.Item} cols={1}>
-                                            <img src={item.Url} alt={item.Item} onClick={() => props.handleConfirmDialog(props.confirmDialogValues.Key, item.Item)} />
+                                        <ImageListItem
+                                            key={item.Item}
+                                            cols={1}
+                                            className={clsx(classes.image, {
+                                                [classes.selectedImage]: selectedItems.filter(x => x.Item === item.Item)?.length > 0
+                                            })}
+                                        >
+                                            <img
+                                                src={item.Url}
+                                                alt={item.Item}
+                                                onClick={() => handleImageClick(item)}
+
+                                            />
                                         </ImageListItem>
                                     ))
                                 }
@@ -69,6 +98,29 @@ const ConfirmDialog: FC<IProps> = (props: IProps) => {
                         )
                 }
             </DialogContent>
+            <DialogActions className={classes.dialogAction}>
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => {
+                        props.setConfirmDialogValues({ ...props.confirmDialogValues, IsOpen: false });
+                        setSelectedItems([]);
+                    }}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    variant="outlined"
+                    title="Yes"
+                    color="primary"
+                    onClick={() => {
+                        props.handleConfirmDialog(props.confirmDialogValues.Key, selectedItems);
+                        setSelectedItems([]);
+                    }}
+                >
+                    Ok
+                </Button>
+            </DialogActions>
         </Dialog>
     );
 };
@@ -105,9 +157,18 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: theme.palette.background.paper,
     },
     imageList: {
-        width: 500,
-        height: 450,
+        width: '100%',
+        height: '100%',
     },
+    image: {
+        
+    },
+    selectedImage: {
+        border: '5px solid #fa8000'
+    },
+    '.MuiImageListItem-item': {
+        height: 'unset',
+    }
 }));
 
 export default ConfirmDialog;
