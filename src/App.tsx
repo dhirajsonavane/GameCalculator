@@ -131,16 +131,13 @@ const App = () => {
 
     switch (event.target.value) {
       case 'armour':
-        dispatch({ type: GameCalculatorActionKind.RATING, payload: null });
-        dispatch({ type: GameCalculatorActionKind.GAMETIME, payload: null });
+        dispatch({ type: GameCalculatorActionKind.ARMOUR, payload: null });
         break;
       case 'rating':
-        dispatch({ type: GameCalculatorActionKind.ARMOUR, payload: null });
-        dispatch({ type: GameCalculatorActionKind.GAMETIME, payload: null });
+        dispatch({ type: GameCalculatorActionKind.RATING, payload: null });
         break;
       case 'gametime':
-        dispatch({ type: GameCalculatorActionKind.ARMOUR, payload: null });
-        dispatch({ type: GameCalculatorActionKind.RATING, payload: null });
+        dispatch({ type: GameCalculatorActionKind.GAMETIME, payload: null });
         break;
       default:
         break;
@@ -186,7 +183,7 @@ const App = () => {
               </Grid>
               <Grid item xs={8} sm={9} md={10} className={classes.CustomSliderContainer}>
                 <CustomSlider
-                  valueLabelDisplay={selectedRdo !== key ? "off" : "on"}
+                  valueLabelDisplay={selectedRdo !== key ? "on" : "off"}
                   aria-label="slider"
                   defaultValue={0}
                   value={(key === 'armour' ? state.armour : (key === 'rating' ? state.rating : state.gametime))}
@@ -220,7 +217,7 @@ const App = () => {
         renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => (
           <TextField
             {...params}
-            label="Choose a KeyStone"
+            label="KeyStone"
             variant="outlined"
             inputProps={{
               ...params.inputProps,
@@ -263,7 +260,7 @@ const App = () => {
         renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => (
           <TextField
             {...params}
-            label="Choose a Summoner"
+            label="Summoner"
             variant="outlined"
             inputProps={{
               ...params.inputProps,
@@ -290,60 +287,56 @@ const App = () => {
   return (
     <div className={`App ${classes.bgImg}`}>
       <CssBaseline />
-      <Container maxWidth="md">
+      <Container maxWidth="lg">
         <div className={classes.root}>
           <Card className={classes.card}>
             <CardContent>
+
               <Grid container>
-                <div style={{ display: 'flex' }}>
-                  <Grid item xs={5}>
-                    <Grid container spacing={3}>
-                      {renderItem('set1', state.set1?.item1)}
-                      {renderItem('set1', state.set1?.item2)}
-                      {renderItem('set1', state.set1?.item3)}
-                      {renderItem('set1', state.set1?.item4)}
-                      {renderItem('set1', state.set1?.item5)}
-                      {renderItem('set1', state.set1?.item6)}
-                    </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Grid container spacing={1}>
+                    {renderItem('set1', state.set1?.item1)}
+                    {renderItem('set1', state.set1?.item2)}
+                    {renderItem('set1', state.set1?.item3)}
+                    {renderItem('set1', state.set1?.item4)}
+                    {renderItem('set1', state.set1?.item5)}
+                    {renderItem('set1', state.set1?.item6)}
                   </Grid>
-
-                  <Grid item xs={3} className={classes.keystone}>
-                    {renderKeyStone('keystone1')}
-                  </Grid>
-
-                  <Grid item xs={3} className={classes.keystone}>
-                    {renderSummoner('summoner1')}
-                  </Grid>
-                </div>
-
-                <div style={{ display: 'flex' }}>
-                  <Grid item xs={5}>
-                    <Grid item xs={12}>
-                      <Grid container spacing={3}>
-                        {renderItem('set2', state.set2?.item1)}
-                        {renderItem('set2', state.set2?.item2)}
-                        {renderItem('set2', state.set2?.item3)}
-                        {renderItem('set2', state.set2?.item4)}
-                        {renderItem('set2', state.set2?.item5)}
-                        {renderItem('set2', state.set2?.item6)}
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={3} className={classes.keystone}>
-                    {renderKeyStone('keystone2')}
-                  </Grid>
-                  <Grid item xs={3} className={classes.keystone}>
-                    {renderSummoner('summoner2')}
-                  </Grid>
-                </div>
+                </Grid>
+                <Grid item xs={6} sm={3} className={classes.keystone}>
+                  {renderKeyStone('keystone1')}
+                </Grid>
+                <Grid item xs={6} sm={3} className={classes.summoner}>
+                  {renderSummoner('summoner1')}
+                </Grid>
               </Grid>
+
+              <Grid container style={{ marginTop: 10 }}>
+                <Grid item xs={12} sm={6}>
+                  <Grid container spacing={1}>
+                    {renderItem('set2', state.set2?.item1)}
+                    {renderItem('set2', state.set2?.item2)}
+                    {renderItem('set2', state.set2?.item3)}
+                    {renderItem('set2', state.set2?.item4)}
+                    {renderItem('set2', state.set2?.item5)}
+                    {renderItem('set2', state.set2?.item6)}
+                  </Grid>
+                </Grid>
+                <Grid item xs={6} sm={3} className={classes.keystone}>
+                  {renderKeyStone('keystone2')}
+                </Grid>
+                <Grid item xs={6} sm={3} className={classes.summoner}>
+                  {renderSummoner('summoner2')}
+                </Grid>
+              </Grid>
+
             </CardContent>
           </Card>
 
           <Card className={classes.card}>
             <CardContent>
               <Grid container style={{ marginTop: 20 }}>
-                {renderRdoSlider('armour', 'armour')}
+                {renderRdoSlider('armour', 'ARMOUR')}
                 {renderRdoSlider('rating', "RATING")}
                 {renderRdoSlider('gametime', 'GAME TIME')}
               </Grid>
@@ -352,37 +345,42 @@ const App = () => {
 
           <Card className={classes.card} style={{ marginBottom: 50 }}>
             <CardContent>
-              <Grid container>
-                <Chart
-                  width={'600px'}
-                  height={'400px'}
-                  chartType="LineChart"
-                  loader={<div>Loading Chart</div>}
-                  data={[
-                    ['x', 'game'],
-                    [0, 0],
-                    [1, 10],
-                    [2, 23],
-                    [3, 17],
-                    [4, 18],
-                    [5, 9],
-                    [6, 11],
-                    [7, 27],
-                    [8, 33],
-                    [9, 40],
-                    [10, 32],
-                    [11, 35],
-                  ]}
-                  options={{
-                    hAxis: {
-                      title: 'Time',
-                    },
-                    vAxis: {
-                      title: 'Popularity',
-                    },
-                  }}
-                  rootProps={{ 'data-testid': '1' }}
-                />
+              <Grid container justify="center" alignItems="center">
+                <Grid item style={{overflowX: 'auto'}}>
+
+                  <Chart
+                    style={{alignContent: 'center'}}
+                    width={'600px'}
+                    height={'400px'}
+                    chartType="LineChart"
+                    loader={<div>Loading Chart</div>}
+                    data={[
+                      ['x', 'game'],
+                      [0, 0],
+                      [1, 10],
+                      [2, 23],
+                      [3, 17],
+                      [4, 18],
+                      [5, 9],
+                      [6, 11],
+                      [7, 27],
+                      [8, 33],
+                      [9, 40],
+                      [10, 32],
+                      [11, 35],
+                    ]}
+                    options={{
+                      hAxis: {
+                        title: 'Time',
+                      },
+                      vAxis: {
+                        title: 'Popularity',
+                      },
+                    }}
+                    rootProps={{ 'data-testid': '1' }}
+                  />
+
+                </Grid>
               </Grid>
             </CardContent>
           </Card>
@@ -412,8 +410,7 @@ const useStyles = makeStyles((theme: Theme) =>
       color: theme.palette.text.secondary,
     },
     itemImg: {
-      width: '100%',
-      height: '100%'
+      width: 55,
     },
     CustomSliderContainer: {
       marginLeft: 10,
@@ -433,7 +430,10 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     },
     keystone: {
-      marginLeft: 10
+      paddingLeft: 7,
+    },
+    summoner: {
+      paddingLeft: 3,
     }
   }),
 );
