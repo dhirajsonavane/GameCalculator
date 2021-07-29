@@ -5,8 +5,8 @@ import Grid from '@material-ui/core/Grid';
 import ConfirmDialog, { ConfirmDialogType } from './components/Dialog/ConfirmDialog';
 import Portrait_Placeholder from './assets/images/Portrait_Placeholder.png';
 import { GameCalculatorReducer } from './GameCalculatorReducer';
-import { GameCalculatorActionKind, GameCalculatorType, Items, KeyStoneType, Set, SummonersType } from './GameCalculatorType';
-import { CssBaseline, FormLabel } from '@material-ui/core';
+import { GameCalculatorActionKind, GameCalculatorType, Items, KeyStoneType, RunesType, Set, SummonersType } from './GameCalculatorType';
+import { CssBaseline, FormLabel, IconButton } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
 import CustomSlider from './components/Slider/CustomSlider';
 import Card from '@material-ui/core/Card';
@@ -17,6 +17,7 @@ import { url } from 'inspector';
 import axios from 'axios';
 import TextField, { TextFieldProps } from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import Avatar from '@material-ui/core/Avatar';
 
 const placeHolderImageItem = { Item: '', Url: Portrait_Placeholder } as Items;
 
@@ -29,7 +30,8 @@ const initialState = {
     item5: placeHolderImageItem,
     item6: placeHolderImageItem,
     keystone: '',
-    summoner: ''
+    summoner: '',
+    runes: []
   } as Set,
   set2: {
     item1: placeHolderImageItem,
@@ -39,7 +41,8 @@ const initialState = {
     item5: placeHolderImageItem,
     item6: placeHolderImageItem,
     keystone: '',
-    summoner: ''
+    summoner: '',
+    runes: []
   } as Set,
   armour: null,
   gametime: null,
@@ -52,6 +55,8 @@ const App = () => {
   const [selectedRdo, setSelectedRdo] = useState('armour');
   const [keyStones, setKeyStones] = useState<KeyStoneType[]>([]);
   const [summoners, setSummoners] = useState<SummonersType[]>([]);
+  const [runes1, setRunes1] = useState<RunesType[]>([]);
+  const [runes2, setRunes2] = useState<RunesType[]>([]);
 
   const [confirmDialogValues, setConfirmDialogValues] = useState<ConfirmDialogType>({
     Key: '',
@@ -84,12 +89,58 @@ const App = () => {
       }
     };
 
+    const fillRunes = async () => {
+      try {
+        axios.get(`https://zt5r022dq9.execute-api.ap-southeast-2.amazonaws.com/default/getbuttonassets`)
+          .then(res => {
+            const items = JSON.parse(res.data.body);
+            let runes = [] as RunesType[];
+            items.map((item: any, i: number) => {
+              runes.push({ ...item, Id: i + 1 })
+            })
+            setRunes1(runes);
+            setRunes2(runes);
+          });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     fillSummoners();
     fillKeyStones();
+    fillRunes();
   }, []);
 
   useEffect(() => {
-    console.log(state);
+    let data = {
+      set1: {
+        item1: state.set1.item1.Item,
+        item2: state.set1.item2.Item,
+        item3: state.set1.item3.Item,
+        item4: state.set1.item4.Item,
+        item5: state.set1.item5.Item,
+        item6: state.set1.item6.Item,
+        keystone: state.set1.keystone,
+        summoner: state.set1.summoner,
+        runes: state.set1.runes,
+      } as any,
+      set2: {
+        item1: state.set2.item1.Item,
+        item2: state.set2.item2.Item,
+        item3: state.set2.item3.Item,
+        item4: state.set2.item4.Item,
+        item5: state.set2.item5.Item,
+        item6: state.set2.item6.Item,
+        keystone: state.set2.keystone,
+        summoner: state.set2.summoner,
+        runes: state.set2.runes,
+      } as any,
+      armour: state.armour,
+      rating: state.rating,
+      gametime: state.gametime
+    } as any;
+
+    console.log(data);
   }, [state]);
 
   const onDialogClick = (key: string, returnValue: Items[]) => {
@@ -144,6 +195,29 @@ const App = () => {
     }
   };
 
+  const toggleRunes = (key: string, id: number) => {
+    switch (key) {
+      case 'set1':
+        let ru1 = runes1.map(item => item.Id !== id ? { ...item } : { ...item, IsSelected: !item.IsSelected });
+        setRunes1(ru1);
+
+        dispatch({
+          type: GameCalculatorActionKind.RUNES1, payload: ru1.filter(x => x.IsSelected).map(y => y.Button)
+        })
+        break;
+      case 'set2':
+        let ru2 = runes2.map(item => item.Id !== id ? { ...item } : { ...item, IsSelected: !item.IsSelected });
+        setRunes2(ru2);
+
+        dispatch({
+          type: GameCalculatorActionKind.RUNES2, payload: ru2.filter(x => x.IsSelected).map(y => y.Button)
+        })
+        break;
+      default:
+        break;
+    }
+  }
+
   const renderItem = (key: string, item: Items) => {
     return (
       <Grid item xs={2}>
@@ -165,7 +239,7 @@ const App = () => {
     )
   }
 
-  const renderRdoSlider = (key: string, title: string) => {
+  const renderRdoSlider = (key: string, title: string, maxValue: number) => {
     return (
       <Grid item xs={12}>
         <Grid container spacing={3}>
@@ -183,6 +257,7 @@ const App = () => {
               </Grid>
               <Grid item xs={8} sm={9} md={10} className={classes.CustomSliderContainer}>
                 <CustomSlider
+                  max={maxValue}
                   valueLabelDisplay={selectedRdo !== key ? "on" : "off"}
                   aria-label="slider"
                   defaultValue={0}
@@ -284,6 +359,31 @@ const App = () => {
     )
   }
 
+  const renderRunes = (key: string) => {
+    const ru = (key === 'set1' ? runes1 : runes2);
+    return (
+      <div className={classes.runes}>
+        {
+          ru.length > 0 && (
+            ru.map(rune => (
+              <Avatar
+                onClick={() => toggleRunes(key, rune.Id)}
+                key={rune.Button}
+                alt={rune.Button}
+                className={classes.runesAvatar}
+                src={
+                  ((key === 'set1' && state.set1.runes?.includes(rune.Button)) || (key === 'set2' && state.set2.runes?.includes(rune.Button))
+                    ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHTfj4rpfo35KCLe8P_QUcy_EThBOWFRo42w&usqp=CAU"
+                    : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStvmnrfrTilGGMvu33dOi7OiFDffNiZED2dQ&usqp=CAU")
+                }
+              />
+            ))
+          )
+        }
+      </div>
+    )
+  }
+
   return (
     <div className={`App ${classes.bgImg}`}>
       <CssBaseline />
@@ -293,7 +393,7 @@ const App = () => {
             <CardContent>
 
               <Grid container>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={6} md={4}>
                   <Grid container spacing={1}>
                     {renderItem('set1', state.set1?.item1)}
                     {renderItem('set1', state.set1?.item2)}
@@ -303,16 +403,19 @@ const App = () => {
                     {renderItem('set1', state.set1?.item6)}
                   </Grid>
                 </Grid>
-                <Grid item xs={6} sm={3} className={classes.keystone}>
+                <Grid item xs={6} sm={3} md={2} className={classes.keystone}>
                   {renderKeyStone('keystone1')}
                 </Grid>
-                <Grid item xs={6} sm={3} className={classes.summoner}>
+                <Grid item xs={6} sm={3} md={2} className={classes.summoner}>
                   {renderSummoner('summoner1')}
+                </Grid>
+                <Grid item xs={6} sm={12} md={4}>
+                  {renderRunes('set1')}
                 </Grid>
               </Grid>
 
               <Grid container style={{ marginTop: 10 }}>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={6} md={4}>
                   <Grid container spacing={1}>
                     {renderItem('set2', state.set2?.item1)}
                     {renderItem('set2', state.set2?.item2)}
@@ -322,11 +425,14 @@ const App = () => {
                     {renderItem('set2', state.set2?.item6)}
                   </Grid>
                 </Grid>
-                <Grid item xs={6} sm={3} className={classes.keystone}>
+                <Grid item xs={6} sm={3} md={2} className={classes.keystone}>
                   {renderKeyStone('keystone2')}
                 </Grid>
-                <Grid item xs={6} sm={3} className={classes.summoner}>
+                <Grid item xs={6} sm={3} md={2} className={classes.summoner}>
                   {renderSummoner('summoner2')}
+                </Grid>
+                <Grid item xs={6} sm={12} md={4}>
+                  {renderRunes('set2')}
                 </Grid>
               </Grid>
 
@@ -336,20 +442,20 @@ const App = () => {
           <Card className={classes.card}>
             <CardContent>
               <Grid container style={{ marginTop: 20 }}>
-                {renderRdoSlider('armour', 'ARMOUR')}
-                {renderRdoSlider('rating', "RATING")}
-                {renderRdoSlider('gametime', 'GAME TIME')}
+                {renderRdoSlider('armour', 'ARMOUR', 400)}
+                {renderRdoSlider('rating', "RATING", 10)}
+                {renderRdoSlider('gametime', 'GAME TIME', 20)}
               </Grid>
             </CardContent>
           </Card>
 
           <Card className={classes.card} style={{ marginBottom: 50 }}>
             <CardContent>
-              <Grid container justify="center" alignItems="center">
-                <Grid item style={{overflowX: 'auto'}}>
+              <Grid container justifyContent="center" alignItems="center">
+                <Grid item style={{ overflowX: 'auto' }}>
 
                   <Chart
-                    style={{alignContent: 'center'}}
+                    style={{ alignContent: 'center' }}
                     width={'600px'}
                     height={'400px'}
                     chartType="LineChart"
@@ -434,6 +540,21 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     summoner: {
       paddingLeft: 3,
+    },
+    runes: {
+      display: 'flex',
+      '& > *': {
+        margin: 5,
+        [theme.breakpoints.down('xs')]: {
+          margin: 3,
+        }
+      }
+    },
+    runesAvatar: {
+      [theme.breakpoints.down('xs')]: {
+        width: 32,
+        heightt: 32
+      }
     }
   }),
 );
@@ -442,4 +563,3 @@ export default App;
 function clsx(arg0: string, arg1: { [x: number]: boolean; }): string | undefined {
   throw new Error('Function not implemented.');
 }
-

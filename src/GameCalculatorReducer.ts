@@ -7,6 +7,7 @@ export const GameCalculatorReducer = (state: any, action: GameCalculatorAction) 
             return {
                 ...state,
                 set1: {
+                    ...state.set1,
                     item1: action.payload[0],
                     item2: action.payload[1],
                     item3: action.payload[2],
@@ -19,6 +20,7 @@ export const GameCalculatorReducer = (state: any, action: GameCalculatorAction) 
             return {
                 ...state,
                 set2: {
+                    ...state.set2,
                     item1: action.payload[0],
                     item2: action.payload[1],
                     item3: action.payload[2],
@@ -61,6 +63,16 @@ export const GameCalculatorReducer = (state: any, action: GameCalculatorAction) 
             return {
                 ...state,
                 set2: { ...state.set2, summoner: action.payload }
+            }
+        case GameCalculatorActionKind.RUNES1:
+            return {
+                ...state,
+                set1: { ...state.set1, runes: action.payload }
+            }
+        case GameCalculatorActionKind.RUNES2:
+            return {
+                ...state,
+                set2: { ...state.set2, runes: action.payload }
             }
         default:
             return state;

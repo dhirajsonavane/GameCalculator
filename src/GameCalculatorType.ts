@@ -33,6 +33,14 @@ export type SummonersType = {
     Url: string
 }
 
+export type RunesType = {
+    Id: number,
+    Button: string,
+    Disabled: string,
+    Enabled: string,
+    IsSelected: boolean
+}
+
 export enum GameCalculatorActionKind {
     UPDATE_STATE1 = 'UPDATE_STATE1',
     UPDATE_STATE2 = 'UPDATE_STATE2',
@@ -43,6 +51,8 @@ export enum GameCalculatorActionKind {
     SUMMONER1 = "SUMMONER1",
     KEYSTONE2 = "KEYSTONE2",
     SUMMONER2 = "SUMMONER2",
+    RUNES1 = "RUNES1",
+    RUNES2 = "RUNES2",
 }
 
 export interface GameCalculatorAction {
