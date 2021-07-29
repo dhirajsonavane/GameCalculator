@@ -18,6 +18,8 @@ import axios from 'axios';
 import TextField, { TextFieldProps } from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Avatar from '@material-ui/core/Avatar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 
 const placeHolderImageItem = { Item: '', Url: Portrait_Placeholder } as Items;
 
@@ -57,6 +59,8 @@ const App = () => {
   const [summoners, setSummoners] = useState<SummonersType[]>([]);
   const [runes1, setRunes1] = useState<RunesType[]>([]);
   const [runes2, setRunes2] = useState<RunesType[]>([]);
+  const [selectedTab, setSelectedTab] = useState(0);
+  const [calculationResult, setCalculationResult] = useState([] as any);
 
   const [confirmDialogValues, setConfirmDialogValues] = useState<ConfirmDialogType>({
     Key: '',
@@ -140,7 +144,15 @@ const App = () => {
       gametime: state.gametime
     } as any;
 
-    console.log(data);
+
+    let result = [] as any;
+    axios.post('https://zt5r022dq9.execute-api.ap-southeast-2.amazonaws.com/default/updategraph', data)
+      .then(res => {
+        debugger;;
+        result = JSON.parse(res.data.body);
+        setCalculationResult(result);
+      })
+
   }, [state]);
 
   const onDialogClick = (key: string, returnValue: Items[]) => {
@@ -373,14 +385,33 @@ const App = () => {
                 className={classes.runesAvatar}
                 src={
                   ((key === 'set1' && state.set1.runes?.includes(rune.Button)) || (key === 'set2' && state.set2.runes?.includes(rune.Button))
-                    ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHTfj4rpfo35KCLe8P_QUcy_EThBOWFRo42w&usqp=CAU"
-                    : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStvmnrfrTilGGMvu33dOi7OiFDffNiZED2dQ&usqp=CAU")
+                    ? rune.Enabled
+                    : rune.Disabled)
                 }
               />
             ))
           )
         }
       </div>
+    )
+  }
+
+  const renderTabs = () => {
+    return (
+      <Paper square>
+        <Tabs
+          value={selectedTab}
+          indicatorColor="primary"
+          textColor="primary"
+          onChange={(event: React.ChangeEvent<{}>, newValue: number) => setSelectedTab(newValue)}
+          aria-label="disabled tabs example"
+        >
+          <Tab label="oneshot" />
+          <Tab label="tripleq" />
+          <Tab label="dueling" />
+          <Tab label="tripleq_dueling" />
+        </Tabs>
+      </Paper>
     )
   }
 
@@ -453,39 +484,31 @@ const App = () => {
             <CardContent>
               <Grid container justifyContent="center" alignItems="center">
                 <Grid item style={{ overflowX: 'auto' }}>
+                  {
+                    calculationResult.length > 0 && (
+                      <Chart
+                        style={{ alignContent: 'center' }}
+                        width={'600px'}
+                        height={'400px'}
+                        chartType="LineChart"
+                        loader={<div>Loading Chart</div>}
+                        data={calculationResult}
+                        options={{
+                          hAxis: {
+                            title: selectedRdo,
+                          },
+                          vAxis: {
+                            title: 'results',
+                          },
+                        }}
+                        rootProps={{ 'data-testid': '1' }}
+                      />
+                    )
+                  }
+                </Grid>
 
-                  <Chart
-                    style={{ alignContent: 'center' }}
-                    width={'600px'}
-                    height={'400px'}
-                    chartType="LineChart"
-                    loader={<div>Loading Chart</div>}
-                    data={[
-                      ['x', 'game'],
-                      [0, 0],
-                      [1, 10],
-                      [2, 23],
-                      [3, 17],
-                      [4, 18],
-                      [5, 9],
-                      [6, 11],
-                      [7, 27],
-                      [8, 33],
-                      [9, 40],
-                      [10, 32],
-                      [11, 35],
-                    ]}
-                    options={{
-                      hAxis: {
-                        title: 'Time',
-                      },
-                      vAxis: {
-                        title: 'Popularity',
-                      },
-                    }}
-                    rootProps={{ 'data-testid': '1' }}
-                  />
-
+                <Grid item>
+                  {renderTabs()}
                 </Grid>
               </Grid>
             </CardContent>
